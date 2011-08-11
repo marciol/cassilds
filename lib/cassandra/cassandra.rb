@@ -84,8 +84,10 @@ class Cassandra
   end
 
   def disconnect!
-    @client.disconnect!
-    @client = nil
+    if @client
+      @client.disconnect!
+      @client = nil
+    end
   end
 
   def keyspaces
@@ -195,7 +197,9 @@ class Cassandra
     column_family, column, sub_column, options = 
       extract_and_validate_params(column_family, keys, columns_and_options, READ_DEFAULTS)
 
-    hash = _multiget(column_family, keys, column, sub_column, options[:count], options[:start], options[:finish], options[:reversed], options[:consistency])
+    hash = _multiget(column_family, keys, column, sub_column, 
+      options[:start], options[:finish], options[:count], options[:reversed],
+      options[:consistency])
     # Restore order
     ordered_hash = OrderedHash.new
     keys.each { |key| ordered_hash[key] = hash[key] || (OrderedHash.new if is_super(column_family) and !sub_column) }
@@ -207,11 +211,13 @@ class Cassandra
   def exists?(column_family, key, *columns_and_options)
     column_family, column, sub_column, options = 
       extract_and_validate_params(column_family, key, columns_and_options, READ_DEFAULTS)
+    ret = nil
     if column
-      _multiget(column_family, [key], column, sub_column, 1, nil, nil, nil, options[:consistency])[key]
+      ret = _multiget(column_family, [key], column, sub_column, '', '', 1, false, options[:consistency])[key]
     else
-      _multiget(column_family, [key], nil, nil, 1, '', '', false, options[:consistency])[key]
+      ret = _multiget(column_family, [key], nil, nil, '', '', 1, false, options[:consistency])[key]
     end
+    return (!ret.nil? and ret.send(:length) != 0)
   end
 
   # Return a list of keys in the column_family you request. Requires the
@@ -221,7 +227,30 @@ class Cassandra
   def get_range(column_family, options = {})
     column_family, _, _, options = 
       extract_and_validate_params(column_family, "", [options], READ_DEFAULTS)
-    _get_range(column_family, options[:start].to_s, options[:finish].to_s, options[:count], options[:consistency])
+    _get_range(column_family, options[:start].to_s, options[:finish].to_s,
+      options[:count], options[:consistency])
+  end
+
+  # Return a list of keys in the column_family you request. Requires the
+  # table to be partitioned with OrderPreservingHash. Supports the
+  # <tt>:count</tt>, <tt>:start</tt>, <tt>:finish</tt>, and <tt>:consistency</tt>
+  # options.
+  def get_range_hash(column_family, options = {})
+    column_family, _, _, options =
+      extract_and_validate_params(column_family, "", [options], READ_DEFAULTS)
+    _get_range_hash(column_family, options[:start].to_s, options[:finish].to_s,
+      options[:count], options[:consistency])
+  end
+
+  # Return a list of keys in the column_family you request. Requires the
+  # table to be partitioned with OrderPreservingHash. Supports the
+  # <tt>:count</tt>, <tt>:start</tt>, <tt>:finish</tt>, and <tt>:consistency</tt>
+  # options.
+  def get_range_columns(column_family, *columns_and_options)
+    column_family, columns, sub_columns, options =
+      extract_and_validate_params(column_family, "", columns_and_options, READ_DEFAULTS)
+    _get_range_columns(column_family, columns, sub_columns, options[:start].to_s,
+      options[:finish].to_s, options[:count], options[:consistency])
   end
 
   # Count all rows in the column_family you request. Requires the table

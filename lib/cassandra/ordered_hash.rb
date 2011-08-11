@@ -187,7 +187,7 @@ class Cassandra
     end
 
     def inspect
-      "#<OrderedHash #{super}\n#{@timestamps.inspect}>"
+      "#<OrderedHash #{super}--TimeStamps: #{@timestamps.inspect}>"
     end
 
   private

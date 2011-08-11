@@ -1,7 +1,7 @@
 
 class Cassandra
   # A temporally-ordered Long class for use in Cassandra column names
-  class Long < Comparable
+  class Long < Cassandra::Comparable
 
     # FIXME Should unify with or subclass Cassandra::UUID
     def initialize(bytes = nil)

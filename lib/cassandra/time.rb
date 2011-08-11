@@ -1,7 +1,7 @@
 
 class Time
   def self.stamp
-    Time.now.stamp
+    Time.now.utc.stamp
   end
   
   def stamp

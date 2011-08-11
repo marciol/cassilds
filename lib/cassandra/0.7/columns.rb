@@ -23,6 +23,14 @@ class Cassandra
       cfdef.send(key)
     end
 
+    def keyslice_to_hash(column_family, slice_array)
+      hash = OrderedHash.new
+      slice_array.each { |slice|
+        hash[slice.key] = columns_to_hash(column_family, slice.columns)
+      }
+      hash
+    end
+
     private
 
     def _standard_insert_mutation(column_family, column_name, value, timestamp, ttl = nil)
