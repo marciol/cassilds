@@ -44,7 +44,7 @@ class Cassandra
       (sub_columns || columns).map { |name| result[klass.new(name)] }
     end
 
-    def _multiget(column_family, keys, column, sub_column, count, start, finish, reversed, consistency)
+    def _multiget(column_family, keys, column, sub_column, start, finish, count, reversed, consistency)
       # Single values; count and range parameters have no effect
       if is_super(column_family) and sub_column
         column_path = CassandraThrift::ColumnPath.new(:column_family => column_family, :super_column => column, :column => sub_column)
