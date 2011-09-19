@@ -39,6 +39,11 @@ class Cassandra
       end
     end
 
+    def to_s
+      @bytes
+    end
+    alias :bytes :to_s
+
     def to_guid
       "%08x-%04x-%04x" % @bytes.unpack("Nnn")
     end    
