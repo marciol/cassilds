@@ -1,9 +1,5 @@
 # OrderedHash is namespaced to prevent conflicts with other implementations
 class Cassandra
-  # Hash is ordered in Ruby 1.9!
-  if RUBY_VERSION >= '1.9'
-    OrderedHashInt = ::Hash
-  else
     class OrderedHashInt < Hash #:nodoc:
       def initialize(*args, &block)
         super
@@ -126,6 +122,10 @@ class Cassandra
         @keys = other.keys
         self
       end
+      
+      def reverse
+        OrderedHashInt[self.to_a.reverse]
+      end
 
     private
 
@@ -133,11 +133,10 @@ class Cassandra
         @keys.delete_if {|k| !has_key?(k)}
       end
     end
-  end
 
   class OrderedHash < OrderedHashInt #:nodoc:
     def initialize(*args, &block)
-      @timestamps = Hash.new
+      @timestamps = OrderedHashInt.new
       super
     end
 
@@ -156,13 +155,13 @@ class Cassandra
       super
     end
 
-    def delete_if
-      @timestamps.delete_if
+    def delete_if(&block)
+      @timestamps.delete_if(&block)
       super
     end
 
-    def reject!
-      @timestamps.reject!
+    def reject!(&block)
+      @timestamps.reject!(&block)
       super
     end
 
@@ -188,13 +187,6 @@ class Cassandra
 
     def inspect
       "#<OrderedHash #{super}--TimeStamps: #{@timestamps.inspect}>"
-    end
-
-  private
-
-    def sync_keys!
-      @timestamps.delete_if {|k,v| !has_key?(k)}
-      super
     end
   end
 end

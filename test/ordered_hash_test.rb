@@ -198,6 +198,11 @@ class OrderedHashTestInt < Test::Unit::TestCase
     assert_same original, @ordered_hash
     assert_equal @other_ordered_hash.keys, @ordered_hash.keys
   end
+  
+  def test_reverse
+    assert_equal @keys.reverse, @ordered_hash.reverse.keys
+    assert_equal @values.reverse, @ordered_hash.reverse.values
+  end
 end
 
 class OrderedHashTest < Test::Unit::TestCase
@@ -321,6 +326,7 @@ class OrderedHashTest < Test::Unit::TestCase
     @ordered_hash.reject! { |k, _| k == 'pink' }
     assert_equal copy, @ordered_hash
     assert !@ordered_hash.keys.include?('pink')
+    assert !@ordered_hash.timestamps.keys.include?('pink')
   end
 
   def test_reject
