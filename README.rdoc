@@ -81,3 +81,8 @@ The list of hosts you pass to the client is only used to auto-discover all the n
 == Reporting problems
 
 The Github issue tracker is {here}[http://github.com/fauna/cassandra/issues]. If you have problems with this library or Cassandra itself, please use the {cassandra-user mailing list}[http://mail-archives.apache.org/mod_mbox/incubator-cassandra-user/].
+
+== Version/Branch
+
+This is the old Umanni branch for Cassandra 0.7 (it runs on Cassandra 0.8)
+
