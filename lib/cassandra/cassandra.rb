@@ -702,7 +702,6 @@ class Cassandra
     else
       get_range_single(column_family, options, &blk)
     end
-    return (!ret.nil? and ret.send(:length) != 0)
   end
 
   ##
