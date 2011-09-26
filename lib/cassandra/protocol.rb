@@ -105,7 +105,7 @@ class Cassandra
     def _get_indexed_slices(column_family, index_clause, column, count, start, finish, reversed, consistency)
       column_parent = CassandraThrift::ColumnParent.new(:column_family => column_family)
       if column
-        predicate = CassandraThrift::SlicePredicate.new(:column_names => [column])
+        predicate = CassandraThrift::SlicePredicate.new(:column_names => Array(column))
       else
         predicate = CassandraThrift::SlicePredicate.new(:slice_range =>
           CassandraThrift::SliceRange.new(
