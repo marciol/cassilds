@@ -26,24 +26,14 @@ class Cassandra
 
     # FIXME: Add support for start, stop, count
     def _get_columns(column_family, key, columns, sub_columns, consistency)
-      result = if is_super(column_family)
-        if sub_columns
-          columns_to_hash(column_family, client.get_slice(key,
-            CassandraThrift::ColumnParent.new(:column_family => column_family, :super_column => columns),
-            CassandraThrift::SlicePredicate.new(:column_names => sub_columns),
-            consistency))
-        else
-          columns_to_hash(column_family, client.get_slice(key,
-            CassandraThrift::ColumnParent.new(:column_family => column_family),
-            CassandraThrift::SlicePredicate.new(:column_names => columns),
-            consistency))
-        end
-      else
-        columns_to_hash(column_family, client.get_slice(key,
-          CassandraThrift::ColumnParent.new(:column_family => column_family),
-          CassandraThrift::SlicePredicate.new(:column_names => columns),
-          consistency))
+      if is_super(column_family) and sub_columns
+        predicate = CassandraThrift::SlicePredicate.new(:column_names => sub_columns)
+        column_parent = CassandraThrift::ColumnParent.new(:column_family => column_family, :super_column => columns)
+      else # Standard and SuperColumns without sub_columns specified
+        predicate = CassandraThrift::SlicePredicate.new(:column_names => columns)
+        column_parent = CassandraThrift::ColumnParent.new(:column_family => column_family)
       end
+      result = columns_to_hash(column_family, client.get_slice(key, column_parent, predicate, consistency))
 
       klass = column_name_class(column_family)
       (sub_columns || columns).map { |name| result[klass.new(name)] }
@@ -52,14 +42,14 @@ class Cassandra
     def _multiget(column_family, keys, column, sub_column, start, finish, count, reversed, consistency)
       # Single values; count and range parameters have no effect
       if is_super(column_family) and sub_column
-        predicate = CassandraThrift::SlicePredicate.new(:column_names => [sub_column])
+        predicate = CassandraThrift::SlicePredicate.new(:column_names => Array(sub_column))
         column_parent = CassandraThrift::ColumnParent.new(:column_family => column_family, :super_column => column)
         column_hash = multi_sub_columns_to_hash!(column_family, client.multiget_slice(keys, column_parent, predicate, consistency))
 
         klass = sub_column_name_class(column_family)
         keys.inject({}){|hash, key| hash[key] = column_hash[key][klass.new(sub_column)]; hash}
       elsif !is_super(column_family) and column
-        predicate = CassandraThrift::SlicePredicate.new(:column_names => [column])
+        predicate = CassandraThrift::SlicePredicate.new(:column_names => Array(column))
         column_parent = CassandraThrift::ColumnParent.new(:column_family => column_family)
         column_hash  = multi_columns_to_hash!(column_family, client.multiget_slice(keys, column_parent, predicate, consistency))
 

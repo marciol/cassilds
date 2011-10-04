@@ -566,9 +566,16 @@ class Cassandra
   # * options - Valid options are:
   #   * :consistency - Uses the default read consistency if none specified.
   #
-  # FIXME Not real multi; needs to use a Column predicate
-  def multi_get_columns(column_family, keys, *options)
-    OrderedHash[*keys.map { |key| [key, get_columns(column_family, key, *options)] }._flatten_once]
+  def multi_get_columns(column_family, keys, *columns_and_options)
+    column_family, columns, sub_columns, options = 
+      extract_and_validate_params(column_family, keys, columns_and_options, READ_DEFAULTS)
+
+    hash = _multiget(column_family, keys, columns, sub_columns, 
+      nil, nil, nil, nil, options[:consistency])
+    # Restore order
+    ordered_hash = OrderedHash.new
+    keys.each { |key| ordered_hash[key] = hash[key] || (OrderedHash.new if is_super(column_family) and !sub_columns) }
+    ordered_hash
   end
 
   ##
