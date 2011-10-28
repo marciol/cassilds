@@ -34,4 +34,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'rake'
   s.add_dependency 'simple_uuid'
   s.add_development_dependency 'eventmachine'
+  s.add_development_dependency 'rspec'
 end
