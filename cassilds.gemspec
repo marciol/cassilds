@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
 
 
   s.add_dependency 'thrift'
-  s.add_dependency 'thrift_client', '=> 0.7.0'
+  s.add_dependency 'thrift_client', '>= 0.7.0'
   s.add_dependency 'json'
   s.add_dependency 'rake'
   s.add_dependency 'simple_uuid', '~> 0.2.0'
