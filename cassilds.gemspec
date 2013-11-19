@@ -29,10 +29,10 @@ Gem::Specification.new do |s|
 
 
   s.add_dependency 'thrift'
-  s.add_dependency 'thrift_client'
+  s.add_dependency 'thrift_client', '=> 0.7.0'
   s.add_dependency 'json'
   s.add_dependency 'rake'
-  s.add_dependency 'simple_uuid'
+  s.add_dependency 'simple_uuid', '~> 0.2.0'
   s.add_development_dependency 'eventmachine'
   s.add_development_dependency 'rspec'
 end
